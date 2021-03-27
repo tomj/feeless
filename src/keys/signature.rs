@@ -1,5 +1,5 @@
 use crate::encoding::{deserialize_from_str, hex_formatter};
-use crate::{expect_len, to_hex};
+use crate::{expect_len, to_hex, Address};
 
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::convert::TryFrom;
@@ -74,4 +74,32 @@ impl std::fmt::UpperHex for Signature {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         crate::encoding::hex_formatter(f, &self.0)
     }
+}
+
+const BEGIN_MESSAGE: &str = "---------- FEELESS BEGIN MESSAGE ----------";
+const BEGIN_ADDRESS: &str = "---------- FEELESS BEGIN ADDRESS ----------";
+const BEGIN_SIGNATURE: &str = "---------- FEELESS BEGIN SIGNATURE ----------";
+const END_SIGNATURE: &str = "---------- FEELESS END SIGNATURE ----------";
+
+struct Armor {
+    message: String,
+    address: Address,
+    signature: Signature,
+}
+
+impl Armor {
+    pub fn new(message: String, address: Address, signature: Signature) -> Self {
+        Self {
+            message,
+            address,
+            signature,
+        }
+    }
+}
+
+fn armor(message: &str, address: &Address, signature: &Signature) -> String {
+    format!(
+        "{}\n{}\n{}\n{}\n{}\n{:X}\n{}",
+        BEGIN_MESSAGE, message, BEGIN_ADDRESS, address, BEGIN_SIGNATURE, signature, END_SIGNATURE
+    )
 }

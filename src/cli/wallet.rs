@@ -287,15 +287,3 @@ struct SignOpts {
     #[clap(flatten)]
     opts: CommonOpts,
 }
-
-const BEGIN_MESSAGE: &str = "---------- FEELESS BEGIN MESSAGE ----------";
-const BEGIN_ADDRESS: &str = "---------- FEELESS BEGIN ADDRESS ----------";
-const BEGIN_SIGNATURE: &str = "---------- FEELESS BEGIN SIGNATURE ----------";
-const END_SIGNATURE: &str = "---------- FEELESS END SIGNATURE ----------";
-
-fn armor(message: &str, address: &Address, signature: &Signature) -> String {
-    format!(
-        "{}\n{}\n{}\n{}\n{}\n{:X}\n{}",
-        BEGIN_MESSAGE, message, BEGIN_ADDRESS, address, BEGIN_SIGNATURE, signature, END_SIGNATURE
-    )
-}
