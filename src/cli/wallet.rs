@@ -72,6 +72,13 @@ impl WalletOpts {
                 let wallet = WalletOpts::read(&o.opts).await?;
                 println!("{}", wallet.address(o.index)?);
             }
+            Command::Sign(o) => {
+                let wallet = WalletOpts::read(&o.opts).await?;
+                let string = o.message.to_owned().resolve()?;
+                let message = string.as_bytes();
+                let signed = wallet.private(o.index)?.sign(message)?;
+                println!("{:X}", signed);
+            }
         };
         Ok(())
     }
@@ -106,6 +113,9 @@ enum Command {
 
     /// Output the address of a wallet.
     Address(AddressOpts),
+
+    /// Sign a message using a key in this wallet.
+    Sign(SignOpts),
 }
 
 #[derive(Clap)]
@@ -252,6 +262,21 @@ struct PublicOpts {
 
 #[derive(Clap)]
 struct AddressOpts {
+    #[clap(default_value = "0")]
+    index: u32,
+
+    #[clap(flatten)]
+    opts: CommonOpts,
+}
+
+#[derive(Clap)]
+struct SignOpts {
+    message: StringOrStdin<String>,
+
+    /// Use the feeless armor format which includes the address, message and signature.
+    #[clap(short, long)]
+    armor: bool,
+
     #[clap(default_value = "0")]
     index: u32,
 

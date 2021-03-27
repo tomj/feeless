@@ -69,3 +69,9 @@ impl TryFrom<&[u8]> for Signature {
         Ok(s)
     }
 }
+
+impl std::fmt::UpperHex for Signature {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        crate::encoding::hex_formatter(f, &self.0)
+    }
+}
