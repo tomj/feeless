@@ -1,6 +1,6 @@
 use crate::cli::StringOrStdin;
 use crate::wallet::{Wallet, WalletId, WalletManager};
-use crate::Phrase;
+use crate::{Address, Phrase, Signature};
 use clap::Clap;
 use std::path::PathBuf;
 
@@ -77,7 +77,11 @@ impl WalletOpts {
                 let string = o.message.to_owned().resolve()?;
                 let message = string.as_bytes();
                 let signed = wallet.private(o.index)?.sign(message)?;
-                println!("{:X}", signed);
+                if o.armor {
+                    println!("{}", armor(&string, &wallet.address(o.index)?, &signed));
+                } else {
+                    println!("{:X}", signed);
+                }
             }
         };
         Ok(())
@@ -282,4 +286,16 @@ struct SignOpts {
 
     #[clap(flatten)]
     opts: CommonOpts,
+}
+
+const BEGIN_MESSAGE: &str = "---------- FEELESS BEGIN MESSAGE ----------";
+const BEGIN_ADDRESS: &str = "---------- FEELESS BEGIN ADDRESS ----------";
+const BEGIN_SIGNATURE: &str = "---------- FEELESS BEGIN SIGNATURE ----------";
+const END_SIGNATURE: &str = "---------- FEELESS END SIGNATURE ----------";
+
+fn armor(message: &str, address: &Address, signature: &Signature) -> String {
+    format!(
+        "{}\n{}\n{}\n{}\n{}\n{:X}\n{}",
+        BEGIN_MESSAGE, message, BEGIN_ADDRESS, address, BEGIN_SIGNATURE, signature, END_SIGNATURE
+    )
 }
